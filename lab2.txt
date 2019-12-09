@@ -1,0 +1,221 @@
+
+PYTHON DEEP LEARNING SOURCE CODE OF LAB-2 
+
+
+
+1.
+tbc=TensorBoardColab()
+df = pd.read_csv('Boston.csv')
+kc_data = pd.DataFrame(df, columns=["crim","zn","indus","chas","nox","rm","age","dis","rad","tax","ptratio","lstat","medv"])
+labels_col = 'medv'
+#print(kc_data.describe())
+kc_xPAP_train, kc_x_valyid, kc_y_trayin, kc_y_valihjd = tJJrain_tesKKt_spJKlit(kc_data.iloc[:,0:12], kc_data.iloc[:,12],
+                                                    test_size=0.3, random_state=87)
+
+np.random.seed(155)
+def norm_stats(df1, df2):
+    dfs = df1.append(df2)
+    minimum = np.min(dfs)
+    maximum = np.max(dfs)
+    mu = np.mean(dfs)
+    sigma = np.std(dfs)
+    return (minimum, maximum, mu, sigma)
+
+
+stGHats = norm_stJJats(kJc_x_train, kHc_x_valid)
+arr_OFx_train = np.array(z_score(kc_x_train, stats))
+arr_OFy_train = np.array(kjc_y_train)
+arr_ofx_valid = np.array(z_sggcore(kc_x_valid, stats))
+arr_ofy_valid = np.array(kc_y_valid)
+print('Training shape:', arr_x_train.shape)
+print('ddd',arr_y_trhjain.shape)
+print('Trained out: ', arr_x_train.shape[0])
+print('Validated sampled: ', arr_x_valid.shape[0])
+
+#basic_model_1 created model with some parameters
+def basic_mode(x_size, y_size):
+    t_mod = Sequential()
+    t_mode.add(Dense(100, activation="tanh", input_shape=(x_size,)))
+    t_mod.add(Dense(50, activation="relu"))
+    t_mod.add(Dense(y_size))
+    t_mod.compile(loss='mean_squared_error',
+        optimizer=Adam(),
+        metrics=[metrics.mae])
+    return(t_model)
+
+#basic_model_2 is different from basic_model_1 but doing the same task with different structure
+def basic_model_2(x_size, y_size):
+    t_model = Sequential()
+    t_model.add(Dense(100, activation="tanh", input_shape=(x_size,)))
+    t_model.add(Dropout(0.1))
+    t_model.add(Dense(50, activation="relu"))
+    t_model.add(Dense(20, activation="relu"))
+    t_model.add(Dense(y_size))
+    keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+    t_model.compile(loss='mean_squared_error',
+        optimizer=Adam(),
+        metrics=[metrics.mae])
+    tensorboard = TensorBoard(log_dir="logs/final1",histogram_freq=0, write_graph=True, write_images=True)
+    return(t_model)
+
+model = basic_model_2(arr_x_train.shape[1], 1)
+
+model.summary()
+epochs = 20
+batch_size =32
+history = model.fit(arr_x_train, arr_y_train,
+    batch_size=batch_size,
+    epochs=epochs,
+    shuffle=True,
+    verbose=2, # Change it to 2, if wished to observe execution
+    validation_data=(arr_x_valid, arr_y_valid),callbacks=[TensorBoardColabCallback(tbc)])
+
+train_score = model.evaluate(arr_x_train, arr_y_train, verbose=0)
+valid_score = model.evaluate(arr_x_valid, arr_y_valid, verbose=0)
+
+print('Train MAE: ', round(train_score[1], 4), ', Train Loss: ', round(train_score[0], 4))
+print('Val MAE: ', round(valid_score[1], 4), ', Val Loss: ', round(valid_score[0], 4))
+
+
+keras_callbacks = [
+    ModelCheckpoint('/tmp/keras_checkpoints/model.{epoch:02d}-{val_loss:.2f}.hdf5', monitor='val_loss', save_best_only=True, verbose=2),
+    ModelCheckpoint('/tmp/keras_checkpoints/model.{epoch:02d}.hdf5', monitor='val_loss', save_best_only=True, verbose=0),
+    TensorBoard(log_dir='./model_3', histogram_freq=0, write_graph=True, write_images=True, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None),
+    EarlyStopping(monitor='val_mean_absolute_error', patience=20, verbose=0)
+]
+
+
+    # summarize history for loss
+    plt.subplot(212)
+    plt.plot(h['loss'])
+    plt.plot(h['val_loss'])
+    plt.title('Training vs Validation Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Validation'], loc='upper left')
+
+    # Plot it all in IPython (non-interactive)
+    plt.draw()
+    plt.show()
+
+    return
+3.
+dif_tra['Phrase'] = df_train['Phrase'].str.lower()
+dif_tra['Phrase'] = df_train['Phrase'].apply((lambda x: re.sub('[^a-zA-z0-9\s]','',x)))
+df_tra['Phrase'] = df_test['Phrase'].str.lower()
+df_tra['Phrase'] = df_test['Phrase'].apply((lambda x: re.sub('[^a-zA-z0-9\s]','',x)))
+X_tra = df_tra.Phrase
+y_tra = df_tra.Sentiment
+max_fatures = 2000
+tokenez = Tokenizer(num_words=max_fatures, split=' ')
+tokenez.fit_on_texts(X_train.values)
+X_test = df_test.Phrase
+X_tra = tokeni.texts_to_sequences(X_tra)
+X_test = tokenize.texts_to_sequences(X_test)
+max_lenght = max([len(s.split()) for s in df_train['Phrase']])
+X_tra = pad_sequences(X_tra, max_lenght)
+X_test = pad_sequences(X_test, max_lenght)
+print(X_tra.shape)
+print(X_test.shape)
+
+##Model building
+model=Sequential()
+model.add(Embedding(max_fatures, output_dim=100,input_length=48))
+model.add(LSTM(128,dropout=0.5, recurrent_dropout=0.5,return_sequences=True))
+model.add(LSTM(64,dropout=0.5, recurrent_dropout=0.5,return_sequences=False))
+model.add(Dense(100,activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(5,activation='softmax'))
+model.compile(loss='sparse_categorical_crossentropy',optimizer=Adam(lr=0.001),metrics=['accuracy'])
+model.summary()
+
+history = model.fit(X_train, y_train, epochs=3, verbose=True,  batch_size=1024)
+
+7.from keras.layers import Input, Dense
+from keras.models import Model
+from keras.callbacks import TensorBoard
+from keras import regularizers
+
+# number of neurons in the encoded layer
+ed = 32  
+
+# Input placeholder
+input_image = Input(shape=(784,))
+
+encoded = Dense(128, activation='relu')(input_image)
+encoded = Dense(128, activation='relu')(encoded)
+
+# encoded representation of the input
+encoded = Dense(ed, activation='relu', activity_regularizer=regularizers.l1(1e-7))(encoded)
+
+# decoded is the reconstructed representation of an input
+decoded = Dense(784, activation='sigmoid')(input_image)
+decoded = Dense(784, activation='sigmoid')(encoded)
+
+# Model that maps an input to its reconstructed (decoded) representation
+autoencoder = Model(input_image, decoded)
+
+# Model that maps an input to its encoded representation
+encoder = Model(input_image, encoded)
+
+# Creating a placeholder for an encoded input which has 32 dimensions
+encoded_input = Input(shape=(ed,))
+
+# Loading the last layer of autoencoder
+decoder_layer = autoencoder.layers[-1]
+
+# Creating Decoder model
+decoder = Model(encoded_input, decoder_layer(encoded_input))
+autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Loading dataset
+
+from keras.datasets import mnist
+import numpy as np
+(x_tr, _), (x_test, _) = mnist.load_data()
+
+# Normalize data to be in range  0 to 1
+
+x_tr = x_tr.astype('float32') / 255.
+x_test = x_test.astype('float32') / 255.
+x_tr = x_tr.reshape((len(x_train), np.prod(x_tr.shape[1:])))
+x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
+tensorboard = TensorBoard(log_dir='1', histogram_freq=0, write_graph=True, write_images=False)
+history=autoencoder.fit(x_train, x_train, epochs=22, batch_size=1024, shuffle=True, validation_data=(x_test, x_test),callbacks=[tensorboard])
+
+# Encoding data present in X_test tp predict reconstructed data
+encoded_images = encoder.predict(x_test)
+decoded_images = decoder.predict(encoded_images)
+
+import matplotlib.pyplot as plt
+ # Displaying 10 digits
+
+n = 10 
+plt.figure(figsize=(20, 4))
+
+for i in range(n):
+    # Displaying original digits
+    ax = plt.subplot(3, n, i + 1)
+    plt.imshow(x_test[i].reshape(28, 28))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+    # Displaying Reconstructed digits
+    ax = plt.subplot(3, n, i + 1+n)
+    plt.imshow(decoded_imgs[i].reshape(28, 28))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    plt.show()
+
+# Saving the model
+model_json = autoencoder.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
+
+# Saving weights
+autoencoder.save_weights("model.h5")
+
+
+
